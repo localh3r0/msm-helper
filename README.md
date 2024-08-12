@@ -1,3 +1,6 @@
+# Minecraft Server Mod Helper
+(if u have a better name lmk :)
+
 # How to use
 1. Ensure that the script is inside of a valid minecraft directory, (where your mods and configs files live) if the folders don't exist you can simply create them.
 2. You can run the mod directly using ```python3 msmh.py``` or running the exectuable if you dowloaded from releases, (make sure the executable has execute permission)
