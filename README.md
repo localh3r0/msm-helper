@@ -18,7 +18,7 @@ If you are on the other end, the server hoster, you need to make sure that your 
 mods <-- from your mc server
 config <-- from your mc server
 ```
-Whenever you update your server mods/config files, you need to ensure to also update the manifest.txt file, alongside the modpack.zip. You can use this repo's file architecture as a template.
+Whenever you update your server mods/config files, you need to ensure to also update the manifest.txt file, alongside the modpack.zip. You can use this repo's file architecture as a template. I do not encourage you to use Github as a hosting platform for minecraft mods as it is againt their TOS. The files uploaded here are just as an example in case you were to host in your own self hosted git.
 ```
 somewhere in your server...
 https://yourserver.com/msm-helper/manifest.txt
