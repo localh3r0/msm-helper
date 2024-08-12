@@ -26,7 +26,6 @@ import sys
 
 VERSION = "0.1"
 USR_OS = "mac" if platform.system().lower() == "darwin" else platform.system().lower()
-CONFIG_FILE_PATH = "mods/msmh-instance.ini"
 UPDATED_MODS_FOLDER = "mcmh-updater/mods"
 UPDATED_CONFIG_FOLDER = "mcmh-updater/config"
 
@@ -38,16 +37,17 @@ class MSMHelper:
         self.modpack_url = ""
         self.manifest_url = ""
         self.start_command = ""
+        self.is_pack_already_downloaded = False
 
     def create_instance(self):
-        if not os.path.isfile(CONFIG_FILE_PATH):
+        if not os.path.isfile("msmh-instance.ini"):
             config = configparser.ConfigParser()
             config["Instance"] = {
-            "modpack_url": "https://github.com/xand3r8/msm-helper/modpack.zip",
-            "manifest_url": "https://github.com/xand3r8/msm-helper/manifest.txt",
+            "modpack_url": "https://github.com/xand3r8/msm-helper/raw/main/src/modpack.zip?download=",
+            "manifest_url": "https://github.com/xand3r8/msm-helper/raw/main/src/manifest.txt",
             "start_command": "",
         }
-            with open(CONFIG_FILE_PATH, "w") as f:
+            with open("msmh-instance.ini", "w") as f:
                 config.write(f)
             print("Created a new configuration file inside of the mods folder. Please edit before executing MSM-Helper again.")
             sys.exit(0)
@@ -59,7 +59,7 @@ class MSMHelper:
             print("Not inside of a minecraft directory! Ensure the script is executed inside of a valid minecraft directory!")
             return sys.exit(1)
 
-        if not os.path.exists(CONFIG_FILE_PATH):
+        if not os.path.exists("msmh-instance.ini"):
             print("Did not find instance lock file! Creating one...")
             self.create_instance()
         
@@ -67,7 +67,7 @@ class MSMHelper:
 
     def read_config_file(self):
         try:
-            with open(CONFIG_FILE_PATH, "r") as f:
+            with open("msmh-instance.ini", "r") as f:
                 config_file = f.readlines()
 
             config = configparser.ConfigParser()
@@ -88,6 +88,7 @@ class MSMHelper:
         """
         fetches the manifest.txt file from the server 
         """
+        print(f"Passed manifest URL: {manifest_url}")
         response = requests.get(manifest_url, stream=True)
 
         if response.status_code == 200:
@@ -97,7 +98,7 @@ class MSMHelper:
             print(f"File downloaded successfully: manifest.txt")
             self.read_and_validate_mods()
         else:
-            print(f"Failed to download file: {response.status_code}")
+            print(f"Failed to download manifest file: {response.status_code}")
     
     @staticmethod
     def create_mod_manifest():
@@ -110,11 +111,12 @@ class MSMHelper:
             f.write(str(mods))
         print("Successfully created manifest.txt")
 
-    def download_pack(self, url):
+    def download_pack(self):
         """
         downloads the modpack from the provided url
         """
-        response = requests.get(url, stream=True)
+        print(f"Passed Download URL {self.modpack_url}")
+        response = requests.get(self.modpack_url, stream=True)
 
         if response.status_code == 200:
             with open("modpack.zip", 'wb') as f:
@@ -125,7 +127,7 @@ class MSMHelper:
         else:
             print(f"Failed to download file: {response.status_code}")
     
-    def unpack_modpack():
+    def unpack_modpack(self):
         """
         Unzip a ZIP file and extract its contents to the specified directory.
 
@@ -135,6 +137,7 @@ class MSMHelper:
         with zipfile.ZipFile("modpack.zip", 'r') as zip_ref:
             zip_ref.extractall("mcmh-updater")
         print(f"Successfully unpacked modpack archive...")
+        self.is_pack_already_downloaded == True
 
 
     def install_mod(self, name):
@@ -142,6 +145,11 @@ class MSMHelper:
         updates the necessary mods
         :param name: # the filename of the mod to install
         """
+        if self.is_pack_already_downloaded == False:
+            self.download_pack()
+        else:
+            print("Skipping pack download")
+
         for mod in os.listdir(UPDATED_MODS_FOLDER):
             if name in mod:
                 os.remove(f"mods/{mod}")
@@ -158,7 +166,7 @@ class MSMHelper:
         shutil.move(f"{UPDATED_MODS_FOLDER}/configs", "configs")
         print("Successfully updated config folder!")
 
-    def read_and_validate_mods(self, server_mods):
+    def read_and_validate_mods(self):
         """
         validates mods with the server and ensures they are updated
         """
