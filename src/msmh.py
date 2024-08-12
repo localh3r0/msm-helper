@@ -17,6 +17,7 @@
 """
 import platform
 import shutil
+import ast
 import configparser
 import requests
 import argparse
@@ -24,10 +25,10 @@ import zipfile
 import os
 import sys
 
-VERSION = "0.1"
+VERSION = "0.2"
 USR_OS = "mac" if platform.system().lower() == "darwin" else platform.system().lower()
-UPDATED_MODS_FOLDER = "mcmh-updater/mods"
-UPDATED_CONFIG_FOLDER = "mcmh-updater/config"
+UPDATED_MODS_FOLDER = "msmh-updater/mods"
+UPDATED_CONFIG_FOLDER = "msmh-updater/config"
 
 print(f"Minecraft Server Mods Helper {VERSION} by xander8")
 print(f"Detected OS: {USR_OS}")
@@ -78,11 +79,11 @@ class MSMHelper:
             self.manifest_url = config.get(section[0], "manifest_url")
             self.start_command = config.get(section[0], "start_command")
 
-            self.get_mod_manifest(self.manifest_url)
-
         except FileNotFoundError:
             print("Did not find instance config file!")
             sys.exit(1)
+
+        self.get_mod_manifest(self.manifest_url)
 
     def get_mod_manifest(self, manifest_url: str) -> list:
         """
@@ -115,10 +116,10 @@ class MSMHelper:
         """
         downloads the modpack from the provided url
         """
-        print(f"Passed Download URL {self.modpack_url}")
         response = requests.get(self.modpack_url, stream=True)
 
         if response.status_code == 200:
+            print("Downloading modpack...")
             with open("modpack.zip", 'wb') as f:
                 for chunk in response.iter_content(1024):
                     f.write(chunk)
@@ -135,9 +136,9 @@ class MSMHelper:
         :param extract_to_dir: Directory where the files will be extracted
         """
         with zipfile.ZipFile("modpack.zip", 'r') as zip_ref:
-            zip_ref.extractall("mcmh-updater")
+            zip_ref.extractall("msmh-updater")
         print(f"Successfully unpacked modpack archive...")
-        self.is_pack_already_downloaded == True
+        self.is_pack_already_downloaded = True
 
 
     def install_mod(self, name):
@@ -147,47 +148,47 @@ class MSMHelper:
         """
         if self.is_pack_already_downloaded == False:
             self.download_pack()
-        else:
-            print("Skipping pack download")
 
         for mod in os.listdir(UPDATED_MODS_FOLDER):
             if name in mod:
-                os.remove(f"mods/{mod}")
+                try:
+                    os.remove(f"mods/{mod}")
+                except FileNotFoundError:
+                    print(f"Did not find {mod}!")
                 shutil.move(f"{UPDATED_MODS_FOLDER}/{name}", "mods")
-                print(f"Removed mod {mod}, and updated it with {name}")
+                print(f"+ {mod} has been updated to, {name}!")
 
     def update_config_files(self):
         """
         updates the config folder with the one provided
         by the pack
         """
-        os.remove("configs")
-        os.mkdir("configs")
-        shutil.move(f"{UPDATED_MODS_FOLDER}/configs", "configs")
+        try:
+            shutil.rmtree("config")
+        except FileNotFoundError:
+            print("Did not find a configuration folder.. creating one")
+
+        #os.mkdir("config")
+        shutil.move(f"msmh-updater/config", ".")
         print("Successfully updated config folder!")
 
     def read_and_validate_mods(self):
-        """
-        validates mods with the server and ensures they are updated
-        """
         try:
             with open("manifest.txt", "r") as f:
-                server_mods = f.readlines()
+                server_mods = ast.literal_eval(f.read())
+                
         except FileNotFoundError:
             print("Did not find manifest.txt during mod comparison! Make sure it wasn't deleted or moved. Exiting.")
             sys.exit(0)
         
         local_mods = os.listdir("mods")
-
         for mod in local_mods:
             for s_mod in server_mods:
-                try:
-                    if mod != s_mod:
-                        self.install_mod(s_mod)
-                except KeyError:
-                    print("Found new mod(s) not part of the local manifest... Updating..")
+                if mod != s_mod:
                     self.install_mod(s_mod)
-            break
+                else:
+                    print(f"Skipping update of {mod}, as it's already up to date.")
+        
         self.update_config_files()
         print("Done! All mods have been updated to their latest version. You can close this window and launch Minecraft")
 
