@@ -25,11 +25,20 @@ import zipfile
 import os
 import sys
 
-VERSION = "0.2"
+VERSION = "0.3"
 USR_OS = "mac" if platform.system().lower() == "darwin" else platform.system().lower()
 UPDATED_MODS_FOLDER = "msmh-updater/mods"
 UPDATED_CONFIG_FOLDER = "msmh-updater/config"
 
+print("""
+##     ##  ######  ##     ##         ##     ## ######## ##       ########  ######## ######## 
+###   ### ##    ## ###   ###         ##     ## ##       ##       ##     ## ##       ##     ##
+#### #### ##       #### ####         ##     ## ##       ##       ##     ## ##       ##     ##
+## ### ##  ######  ## ### ## ####### ######### ######   ##       ########  ######   ######## 
+##     ##       ## ##     ##         ##     ## ##       ##       ##        ##       ##   ##  
+##     ## ##    ## ##     ##         ##     ## ##       ##       ##        ##       ##    ## 
+##     ##  ######  ##     ##         ##     ## ######## ######## ##        ######## ##     ##
+""")
 print(f"Minecraft Server Mods Helper {VERSION} by xander8")
 print(f"Detected OS: {USR_OS}")
 
@@ -53,7 +62,7 @@ class MSMHelper:
             print("Created a new configuration file inside of the mods folder. Please edit before executing MSM-Helper again.")
             sys.exit(0)
         else:
-            print("Found a configuration file!")
+            print("Found an existing configuration file!")
     
     def check_if_server_exist(self):
         if not os.path.exists("mods") or not os.path.exists("config"):
@@ -144,7 +153,7 @@ class MSMHelper:
     def install_mod(self, name):
         """
         updates the necessary mods
-        :param name: # the filename of the mod to install
+        :param name: the filename of the mod to install
         """
         if self.is_pack_already_downloaded == False:
             self.download_pack()
@@ -156,7 +165,7 @@ class MSMHelper:
                 except FileNotFoundError:
                     print(f"Did not find {mod}!")
                 shutil.move(f"{UPDATED_MODS_FOLDER}/{name}", "mods")
-                print(f"+ {mod} has been updated to, {name}!")
+                print(f"+ Updated mod: {mod}")
 
     def update_config_files(self):
         """
@@ -171,6 +180,8 @@ class MSMHelper:
         #os.mkdir("config")
         shutil.move(f"msmh-updater/config", ".")
         print("Successfully updated config folder!")
+        print("Done! All mods have been updated to their latest version. You can close this window and launch Minecraft")
+        sys.exit(0)
 
     def read_and_validate_mods(self):
         try:
@@ -182,6 +193,14 @@ class MSMHelper:
             sys.exit(0)
         
         local_mods = os.listdir("mods")
+
+        print("Local MODS:", local_mods)
+        if len(local_mods) == 0:
+            print("Detected empty mods folder!")
+            for s_mod in server_mods:
+                self.install_mod(s_mod)
+            self.update_config_files()
+
         for mod in local_mods:
             for s_mod in server_mods:
                 if mod != s_mod:
@@ -190,7 +209,6 @@ class MSMHelper:
                     print(f"Skipping update of {mod}, as it's already up to date.")
         
         self.update_config_files()
-        print("Done! All mods have been updated to their latest version. You can close this window and launch Minecraft")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Minecraft Server Mod Helper")

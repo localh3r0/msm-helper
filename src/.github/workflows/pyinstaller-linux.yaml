@@ -1,0 +1,45 @@
+name: PyInstaller Linux Universal Binary
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pyinstaller-linux-universal:
+    runs-on: ubuntu-latest
+
+    steps:      
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Install System and Python dependencies
+      run: |
+        sudo apt update -y && \
+        sudo apt install -y \
+        dbus-x11 python3 python3-pip python3-dev \
+        libxcb-cursor0 gcc clang swig \
+        fontconfig libegl1-mesa libegl-dev patchelf && \
+        python3 -m pip install --upgrade pip && \
+        pip3 install --upgrade wheel && \
+        pip3 install pyinstaller && \
+                      
+    - name: Compile and create Executable
+      run: |
+        python3 -m PyInstaller --onefile --name "msm-helper-linux" src/msmh.py
+
+    - name: Calculate Binary SHA256 digest
+      run: |
+        sha256sum dist/msm-helper-linux > dist/msm-helper-linux.sha256        
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: msm-helper-linux
+        path: dist/msm-helper-linux
+
+    - name: Upload SHA256 Digest
+      uses: actions/upload-artifact@v3
+      with:
+        name: msm-helper-linux.sha256
+        path: dist/msm-helper-linux.sha256
