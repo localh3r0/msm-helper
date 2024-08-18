@@ -1,4 +1,4 @@
-name: PyInstaller Linux Universal Binary
+name: Pyinstaller Linux Universal Binary
 
 on:
   push:
@@ -22,8 +22,8 @@ jobs:
         fontconfig libegl1-mesa libegl-dev patchelf && \
         python3 -m pip install --upgrade pip && \
         pip3 install --upgrade wheel && \
-        pip3 install pyinstaller && \
-                      
+        pip3 install pyinstaller
+
     - name: Compile and create Executable
       run: |
         python3 -m PyInstaller --onefile --name "msm-helper-linux" src/msmh.py
