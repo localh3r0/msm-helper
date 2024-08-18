@@ -3,7 +3,7 @@
 
 # How to use
 1. Ensure that the script is inside of a valid minecraft directory, (where your mods and configs files live) if the folders don't exist you can simply create them.
-2. You can run the mod directly using ```python3 msmh.py``` or running the exectuable if you dowloaded from releases, (make sure the executable has execute permission)
+2. You can run the mod directly using ```python3 msmh.py``` or running the exectuable ```./msm-helper-linux``` if you dowloaded from actions, (make sure the executable has execute permission)
 3. On first run the script will create an ini file inside of the mods folder called "msmh-instance.ini" and then exit. Open this ini file, by default it will contain my repos URL (modpacks and config), you can delete these and add your desired hosting/server URL(s), optionally you can also add a start command to auto run the client after mod check and updating has completed
 4. Run the script or executable again to begin mod/config synchronization.
 
