@@ -26,7 +26,7 @@ jobs:
 
     - name: Compile and create Executable
       run: |
-        python3 -m PyInstaller --onefile --name "msm-helper-linux" src/msmh.py
+        python3 -m PyInstaller --onefile --name "msm-helper-linux" --console src/msmh.py
 
     - name: Calculate Binary SHA256 digest
       run: |
