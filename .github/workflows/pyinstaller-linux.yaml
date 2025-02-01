@@ -33,13 +33,13 @@ jobs:
         sha256sum dist/msm-helper-linux > dist/msm-helper-linux.sha256        
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: msm-helper-linux
         path: dist/msm-helper-linux
 
     - name: Upload SHA256 Digest
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: msm-helper-linux.sha256
         path: dist/msm-helper-linux.sha256
