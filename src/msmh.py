@@ -1,6 +1,6 @@
 """ 
     Minecraft Server Mods Helper
-    Copyright (C) 2024 ALEX A https://repo.alexarias.dev/xander8/msm-helper
+    Copyright (C) 2024 ALEX A https://repo.alexarias.dev/localh3r0/msm-helper/
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ print("""
 ##     ## ##    ## ##     ##         ##     ## ##       ##       ##        ##       ##    ## 
 ##     ##  ######  ##     ##         ##     ## ######## ######## ##        ######## ##     ##
 """)
-print(f"Minecraft Server Mods Helper {VERSION} by xander8")
+print(f"Minecraft Server Mods Helper {VERSION} by localh3r0")
 print(f"Detected OS: {USR_OS}")
 
 class MSMHelper:
@@ -53,13 +53,14 @@ class MSMHelper:
         if not os.path.isfile("msmh-instance.ini"):
             config = configparser.ConfigParser()
             config["Instance"] = {
-            "modpack_url": "https://github.com/xand3r8/msm-helper/raw/main/src/modpack.zip?download=",
-            "manifest_url": "https://github.com/xand3r8/msm-helper/raw/main/src/manifest.txt",
+            "modpack_url": "https://github.com/localh3r0/msm-helper/raw/main/src/modpack.zip?download=",
+            "manifest_url": "https://github.com/localh3r0/msm-helper/raw/main/src/manifest.txt",
             "start_command": "",
         }
             with open("msmh-instance.ini", "w") as f:
                 config.write(f)
             print("Created a new configuration file inside of the mods folder. Please edit before executing MSM-Helper again.")
+            f.close()
             sys.exit(0)
         else:
             print("Found an existing configuration file!")
@@ -94,7 +95,7 @@ class MSMHelper:
 
         self.get_mod_manifest(self.manifest_url)
 
-    def get_mod_manifest(self, manifest_url: str) -> list:
+    def get_mod_manifest(self, manifest_url: str):
         """
         fetches the manifest.txt file from the server 
         """
@@ -117,6 +118,8 @@ class MSMHelper:
         all mods in mods folder
         """
         mods = os.listdir("mods")
+        if "manifest.lock" in mods:
+            mods.remove("manifest.lock")
         with open("manifest.txt", "w") as f:
             f.write(str(mods))
         print("Successfully created manifest.txt")
@@ -148,7 +151,6 @@ class MSMHelper:
             zip_ref.extractall("msmh-updater")
         print(f"Successfully unpacked modpack archive...")
         self.is_pack_already_downloaded = True
-
 
     def install_mod(self, name):
         """
@@ -216,7 +218,7 @@ if __name__ == "__main__":
         "-m",
         "-manifest",
         action="store_true",
-        help="Create a text file containing a list of mods"
+        help="Create a text file containing a list of mods in the mods folder"
     )
     args = parser.parse_args()
     msm = MSMHelper()
